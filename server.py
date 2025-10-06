@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Dark Lavender Jellyfish MCP Server
+Reza FastMCP Server
 A FastMCP-based Model Context Protocol server with tools, resources, and prompts
 """
 
@@ -8,7 +8,7 @@ from fastmcp import FastMCP
 from typing import List, Dict
 
 # Initialize the FastMCP server
-mcp = FastMCP("Dark Lavender Jellyfish")
+mcp = FastMCP("Reza FastMCP")
 
 # ========== TOOLS ==========
 
@@ -54,12 +54,12 @@ def join_text(parts: List[str], delimiter: str = " ") -> str:
 
 # ========== RESOURCES ==========
 
-@mcp.resource("jellyfish://info")
-def jellyfish_info() -> str:
-    """Get information about the Dark Lavender Jellyfish server"""
+@mcp.resource("reza://info")
+def reza_info() -> str:
+    """Get information about the Reza FastMCP server"""
     return """
-    Dark Lavender Jellyfish MCP Server
-    ===================================
+    Reza FastMCP Server
+    ===================
     
     A FastMCP-powered text manipulation server providing:
     - Text transformation tools
@@ -71,18 +71,18 @@ def jellyfish_info() -> str:
     Built with FastMCP 2.11.3
     """
 
-@mcp.resource("jellyfish://stats")
+@mcp.resource("reza://stats")
 def server_stats() -> Dict:
     """Get server statistics"""
     return {
-        "server_name": "Dark Lavender Jellyfish",
+        "server_name": "Reza FastMCP",
         "version": "1.0.0",
         "available_tools": 7,
         "available_resources": 3,
         "available_prompts": 3
     }
 
-@mcp.resource("jellyfish://text/{operation}")
+@mcp.resource("reza://text/{operation}")
 def text_operation_info(operation: str) -> str:
     """Get information about a specific text operation"""
     operations = {

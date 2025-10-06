@@ -1,4 +1,4 @@
-# Dark Lavender Jellyfish MCP Server
+# Reza FastMCP Server
 
 A FastMCP-based Model Context Protocol (MCP) server providing text manipulation tools.
 
@@ -39,7 +39,7 @@ Python version:                            3.12.2
 
 1. **Install dependencies:**
    ```bash
-   cd ~/mcp-servers/dark-lavender-jellyfish
+   cd ~/mcp-servers/reza-fastmcp
    uv pip install fastmcp
    ```
 
@@ -65,9 +65,9 @@ Python version:                            3.12.2
 - **join_text**: Join text parts with a delimiter
 
 ### Resources
-- **jellyfish://info**: Server information and capabilities
-- **jellyfish://stats**: Server statistics and metrics
-- **jellyfish://text/{operation}**: Information about specific text operations
+- **reza://info**: Server information and capabilities
+- **reza://stats**: Server statistics and metrics
+- **reza://text/{operation}**: Information about specific text operations
 
 ### Prompts
 - **analyze_text**: Generate prompts for text analysis
@@ -81,9 +81,9 @@ Add this configuration to your Claude Desktop settings:
 ```json
 {
   "mcpServers": {
-    "dark-lavender-jellyfish": {
+    "reza-fastmcp": {
       "command": "python",
-      "args": ["~/mcp-servers/dark-lavender-jellyfish/server.py"]
+      "args": ["~/mcp-servers/reza-fastmcp/server.py"]
     }
   }
 }
@@ -133,6 +133,7 @@ For production deployment, you can use [FastMCP Cloud](http://fastmcp.cloud/sign
 2. Connect your GitHub account
 3. Select this repository for deployment
 4. Your MCP server will be automatically deployed and scaled
+5. Server will be available at: `https://reza-fastmcp.fastmcp.app/mcp`
 
 ### Manual Deployment
 For custom deployment scenarios, ensure:
