@@ -1,6 +1,6 @@
 # Reza FastMCP Server
 
-A FastMCP-based Model Context Protocol (MCP) server providing text manipulation tools.
+A comprehensive FastMCP-based Model Context Protocol (MCP) server providing 28+ text manipulation, encoding, and utility tools.
 
 ## Installation
 
@@ -55,14 +55,49 @@ Python version:                            3.12.2
 
 ## Available Features
 
-### Tools
+### Tools (28 Available)
+
+#### Basic Text Operations
 - **echo_tool**: Echo the input text
 - **reverse_text**: Reverse the input text  
 - **word_count**: Count words and characters in text
 - **uppercase**: Convert text to uppercase
 - **lowercase**: Convert text to lowercase
+- **title_case**: Convert text to title case
+- **capitalize_first**: Capitalize only the first letter
 - **split_text**: Split text by a delimiter
 - **join_text**: Join text parts with a delimiter
+
+#### Text Cleaning & Formatting
+- **remove_whitespace**: Remove all whitespace from text
+- **normalize_whitespace**: Normalize whitespace (replace multiple spaces with single space)
+- **find_and_replace**: Find and replace text with case sensitivity options
+- **sort_lines**: Sort lines in text with reverse and case options
+- **remove_duplicates**: Remove duplicate lines preserving or ignoring order
+
+#### Data Extraction
+- **extract_emails**: Extract email addresses from text
+- **extract_urls**: Extract URLs from text
+- **extract_phone_numbers**: Extract phone numbers from text
+- **slug_from_text**: Create URL-friendly slugs from text
+
+#### Encoding & Security
+- **encode_base64**: Encode text to base64
+- **decode_base64**: Decode base64 text
+- **hash_text**: Generate hash using MD5, SHA1, SHA256, or SHA512
+- **generate_uuid**: Generate random UUID
+- **generate_password**: Generate secure random passwords
+
+#### JSON Operations
+- **format_json**: Format JSON with proper indentation
+- **minify_json**: Minify JSON (remove whitespace)
+
+#### Analytics & Statistics
+- **text_statistics**: Get comprehensive text analytics (words, sentences, reading time, etc.)
+- **word_frequency**: Get word frequency analysis with top N results
+
+#### Utilities
+- **current_timestamp**: Get current timestamp in various formats
 
 ### Resources
 - **reza://info**: Server information and capabilities
