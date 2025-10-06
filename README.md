@@ -53,13 +53,26 @@ Python version:                            3.12.2
    python server.py
    ```
 
-## Available Tools
+## Available Features
 
+### Tools
 - **echo_tool**: Echo the input text
 - **reverse_text**: Reverse the input text  
 - **word_count**: Count words and characters in text
 - **uppercase**: Convert text to uppercase
 - **lowercase**: Convert text to lowercase
+- **split_text**: Split text by a delimiter
+- **join_text**: Join text parts with a delimiter
+
+### Resources
+- **jellyfish://info**: Server information and capabilities
+- **jellyfish://stats**: Server statistics and metrics
+- **jellyfish://text/{operation}**: Information about specific text operations
+
+### Prompts
+- **analyze_text**: Generate prompts for text analysis
+- **transform_text**: Generate prompts for text transformation
+- **creative_writing**: Generate creative writing prompts
 
 ## Configuration for Claude Desktop
 
@@ -107,6 +120,27 @@ fastmcp==2.11.0  # Good
 fastmcp>=2.11.0  # Bad - may install breaking changes
 ```
 
+## Deployment
+
+### Local Development
+Follow the setup instructions above for local development and testing.
+
+### FastMCP Cloud Deployment
+
+For production deployment, you can use [FastMCP Cloud](http://fastmcp.cloud/signup):
+
+1. Create a [FastMCP Cloud account](http://fastmcp.cloud/signup)
+2. Connect your GitHub account
+3. Select this repository for deployment
+4. Your MCP server will be automatically deployed and scaled
+
+### Manual Deployment
+For custom deployment scenarios, ensure:
+- Python 3.8+ environment
+- FastMCP dependencies installed
+- Server accessible on the required port
+- Proper firewall and security configurations
+
 ## Contributing
 
 See the [FastMCP Contributing Guide](https://github.com/jlowin/fastmcp) for details on:
@@ -114,3 +148,9 @@ See the [FastMCP Contributing Guide](https://github.com/jlowin/fastmcp) for deta
 - Running tests and pre-commit hooks
 - Submitting issues and pull requests
 - Code standards and review process
+
+## Learn More
+
+- [FastMCP Documentation](https://gofastmcp.com/)
+- [MCP Protocol Specification](https://modelcontextprotocol.io/)
+- [FastMCP Cloud](http://fastmcp.cloud/)
