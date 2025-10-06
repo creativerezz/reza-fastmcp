@@ -1,6 +1,6 @@
 # Reza FastMCP Server
 
-A comprehensive FastMCP-based Model Context Protocol (MCP) server providing 28+ text manipulation, encoding, and utility tools.
+A comprehensive FastMCP-based Model Context Protocol (MCP) server providing 38+ text manipulation, web scraping, YouTube transcripts, and utility tools.
 
 ## Installation
 
@@ -8,17 +8,26 @@ A comprehensive FastMCP-based Model Context Protocol (MCP) server providing 28+ 
 
 We recommend using [uv](https://docs.astral.sh/uv/getting-started/installation/) to manage Python environments and dependencies.
 
-### Install FastMCP
+### Install Dependencies
 
-You can install FastMCP using uv or pip:
+Install all required dependencies:
 
 ```bash
 # Using uv (recommended)
-uv add fastmcp
+uv pip install -r requirements.txt
 
 # Or using pip
-pip install fastmcp
+pip install -r requirements.txt
 ```
+
+This will install:
+- FastMCP (core framework)
+- youtube-transcript-api (YouTube transcripts)
+- requests & beautifulsoup4 (web scraping)
+- validators (URL/email validation)
+- markdown (format conversion)
+- python-dateutil & pytz (timezone handling)
+- And more...
 
 ### Verify Installation
 
@@ -55,7 +64,7 @@ Python version:                            3.12.2
 
 ## Available Features
 
-### Tools (28 Available)
+### Tools (38 Available)
 
 #### Basic Text Operations
 - **echo_tool**: Echo the input text
@@ -98,6 +107,26 @@ Python version:                            3.12.2
 
 #### Utilities
 - **current_timestamp**: Get current timestamp in various formats
+
+#### YouTube Tools (NEW)
+- **youtube_transcript**: Get YouTube video transcript in plain text
+- **youtube_transcript_with_timestamps**: Get transcript with timestamps
+
+#### Web Scraping Tools (NEW)
+- **fetch_webpage**: Fetch and parse webpage content with metadata
+- **extract_links**: Extract all links from a webpage
+
+#### Validation Tools (NEW)
+- **validate_email**: Validate email address format
+- **validate_url**: Validate URL format
+
+#### Format Conversion Tools (NEW)
+- **markdown_to_html**: Convert Markdown to HTML
+- **html_to_text**: Convert HTML to plain text
+
+#### Date/Time Tools (NEW)
+- **parse_date**: Parse date strings to various formats
+- **timezone_convert**: Convert time between timezones
 
 ### Resources
 - **reza://info**: Server information and capabilities

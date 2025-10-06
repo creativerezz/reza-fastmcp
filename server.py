@@ -5,13 +5,55 @@ A FastMCP-based Model Context Protocol server with tools, resources, and prompts
 """
 
 from fastmcp import FastMCP
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import re
 import json
 import base64
 import hashlib
 import uuid
 import datetime
+from collections import Counter
+import string
+import secrets
+
+# Import new libraries
+try:
+    from youtube_transcript_api import YouTubeTranscriptApi
+    from youtube_transcript_api.formatters import TextFormatter
+    YOUTUBE_AVAILABLE = True
+except ImportError:
+    YOUTUBE_AVAILABLE = False
+
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
+
+try:
+    from bs4 import BeautifulSoup
+    BS4_AVAILABLE = True
+except ImportError:
+    BS4_AVAILABLE = False
+
+try:
+    import validators
+    VALIDATORS_AVAILABLE = True
+except ImportError:
+    VALIDATORS_AVAILABLE = False
+
+try:
+    import markdown
+    MARKDOWN_AVAILABLE = True
+except ImportError:
+    MARKDOWN_AVAILABLE = False
+
+try:
+    from dateutil import parser as date_parser
+    import pytz
+    DATEUTIL_AVAILABLE = True
+except ImportError:
+    DATEUTIL_AVAILABLE = False
 
 # Initialize the FastMCP server
 mcp = FastMCP("Reza FastMCP")
@@ -238,9 +280,252 @@ def remove_duplicates(text: str, preserve_order: bool = True) -> str:
 def word_frequency(text: str, top_n: int = 10) -> Dict[str, int]:
     """Get word frequency count"""
     words = re.findall(r'\b\w+\b', text.lower())
-    from collections import Counter
     word_counts = Counter(words)
     return dict(word_counts.most_common(top_n))
+
+# ========== YouTube Tools ==========
+
+@mcp.tool()
+def youtube_transcript(url: str, language: str = "en") -> Dict[str, Any]:
+    """Get YouTube video transcript"""
+    if not YOUTUBE_AVAILABLE:
+        return {"error": "youtube-transcript-api not installed"}
+    
+    try:
+        # Extract video ID from URL
+        video_id = None
+        if "youtube.com/watch?v=" in url:
+            video_id = url.split("v=")[1].split("&")[0]
+        elif "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+        else:
+            return {"error": "Invalid YouTube URL"}
+        
+        # Get transcript
+        transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
+        
+        # Format transcript
+        formatter = TextFormatter()
+        text_formatted = formatter.format_transcript(transcript_list)
+        
+        # Calculate duration
+        total_duration = transcript_list[-1]["start"] + transcript_list[-1]["duration"] if transcript_list else 0
+        
+        return {
+            "video_id": video_id,
+            "language": language,
+            "transcript": text_formatted,
+            "segments": len(transcript_list),
+            "duration_seconds": total_duration,
+            "duration_formatted": str(datetime.timedelta(seconds=int(total_duration)))
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+def youtube_transcript_with_timestamps(url: str, language: str = "en") -> List[Dict[str, Any]]:
+    """Get YouTube video transcript with timestamps"""
+    if not YOUTUBE_AVAILABLE:
+        return [{"error": "youtube-transcript-api not installed"}]
+    
+    try:
+        # Extract video ID from URL
+        video_id = None
+        if "youtube.com/watch?v=" in url:
+            video_id = url.split("v=")[1].split("&")[0]
+        elif "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+        else:
+            return [{"error": "Invalid YouTube URL"}]
+        
+        # Get transcript
+        transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
+        
+        # Format with timestamps
+        formatted = []
+        for entry in transcript_list:
+            formatted.append({
+                "time": str(datetime.timedelta(seconds=int(entry["start"]))),
+                "text": entry["text"],
+                "duration": entry["duration"]
+            })
+        
+        return formatted
+    except Exception as e:
+        return [{"error": str(e)}]
+
+# ========== Web Tools ==========
+
+@mcp.tool()
+def fetch_webpage(url: str) -> Dict[str, Any]:
+    """Fetch and parse webpage content"""
+    if not REQUESTS_AVAILABLE or not BS4_AVAILABLE:
+        return {"error": "requests or beautifulsoup4 not installed"}
+    
+    try:
+        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Extract text content
+        text = soup.get_text(separator='\n', strip=True)
+        
+        # Extract metadata
+        title = soup.title.string if soup.title else None
+        description = None
+        if soup.find('meta', attrs={'name': 'description'}):
+            description = soup.find('meta', attrs={'name': 'description'}).get('content')
+        
+        return {
+            "url": url,
+            "status_code": response.status_code,
+            "title": title,
+            "description": description,
+            "text_length": len(text),
+            "text": text[:5000],  # First 5000 chars
+            "links_count": len(soup.find_all('a')),
+            "images_count": len(soup.find_all('img'))
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+def extract_links(url: str) -> List[str]:
+    """Extract all links from a webpage"""
+    if not REQUESTS_AVAILABLE or not BS4_AVAILABLE:
+        return ["Error: requests or beautifulsoup4 not installed"]
+    
+    try:
+        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        links = []
+        
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            # Convert relative URLs to absolute
+            if href.startswith('http'):
+                links.append(href)
+            elif href.startswith('/'):
+                from urllib.parse import urljoin
+                links.append(urljoin(url, href))
+        
+        return list(set(links))  # Remove duplicates
+    except Exception as e:
+        return [f"Error: {str(e)}"]
+
+# ========== Validation Tools ==========
+
+@mcp.tool()
+def validate_email(email: str) -> bool:
+    """Validate email address format"""
+    if VALIDATORS_AVAILABLE:
+        return validators.email(email) is True
+    else:
+        # Fallback regex validation
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(pattern, email))
+
+@mcp.tool()
+def validate_url(url: str) -> bool:
+    """Validate URL format"""
+    if VALIDATORS_AVAILABLE:
+        return validators.url(url) is True
+    else:
+        # Fallback regex validation
+        pattern = r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b'
+        return bool(re.match(pattern, url))
+
+# ========== Markdown Tools ==========
+
+@mcp.tool()
+def markdown_to_html(markdown_text: str) -> str:
+    """Convert Markdown to HTML"""
+    if not MARKDOWN_AVAILABLE:
+        return "Error: markdown library not installed"
+    
+    try:
+        html = markdown.markdown(markdown_text, extensions=['extra', 'codehilite'])
+        return html
+    except Exception as e:
+        return f"Error converting markdown: {str(e)}"
+
+@mcp.tool()
+def html_to_text(html_text: str) -> str:
+    """Convert HTML to plain text"""
+    if not BS4_AVAILABLE:
+        return "Error: beautifulsoup4 not installed"
+    
+    try:
+        soup = BeautifulSoup(html_text, 'html.parser')
+        text = soup.get_text(separator='\n', strip=True)
+        return text
+    except Exception as e:
+        return f"Error parsing HTML: {str(e)}"
+
+# ========== Date/Time Tools ==========
+
+@mcp.tool()
+def parse_date(date_string: str, timezone: str = "UTC") -> Dict[str, Any]:
+    """Parse date string to various formats"""
+    if not DATEUTIL_AVAILABLE:
+        return {"error": "python-dateutil not installed"}
+    
+    try:
+        # Parse the date
+        dt = date_parser.parse(date_string)
+        
+        # Apply timezone
+        if timezone in pytz.all_timezones:
+            tz = pytz.timezone(timezone)
+            dt = tz.localize(dt) if dt.tzinfo is None else dt.astimezone(tz)
+        
+        return {
+            "original": date_string,
+            "iso_format": dt.isoformat(),
+            "unix_timestamp": int(dt.timestamp()),
+            "human_readable": dt.strftime("%B %d, %Y at %I:%M %p"),
+            "date_only": dt.strftime("%Y-%m-%d"),
+            "time_only": dt.strftime("%H:%M:%S"),
+            "day_of_week": dt.strftime("%A"),
+            "timezone": timezone
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+def timezone_convert(time_string: str, from_tz: str, to_tz: str) -> Dict[str, str]:
+    """Convert time between timezones"""
+    if not DATEUTIL_AVAILABLE:
+        return {"error": "python-dateutil not installed"}
+    
+    try:
+        # Parse the time
+        dt = date_parser.parse(time_string)
+        
+        # Apply source timezone
+        if from_tz in pytz.all_timezones:
+            from_timezone = pytz.timezone(from_tz)
+            dt = from_timezone.localize(dt) if dt.tzinfo is None else dt
+        
+        # Convert to target timezone
+        if to_tz in pytz.all_timezones:
+            to_timezone = pytz.timezone(to_tz)
+            dt_converted = dt.astimezone(to_timezone)
+        else:
+            return {"error": f"Invalid timezone: {to_tz}"}
+        
+        return {
+            "original": time_string,
+            "from_timezone": from_tz,
+            "to_timezone": to_tz,
+            "converted": dt_converted.strftime("%Y-%m-%d %H:%M:%S %Z"),
+            "iso_format": dt_converted.isoformat()
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 # ========== RESOURCES ==========
 
@@ -266,8 +551,8 @@ def server_stats() -> Dict:
     """Get server statistics"""
     return {
         "server_name": "Reza FastMCP",
-        "version": "1.0.0",
-        "available_tools": 28,
+        "version": "1.1.0",
+        "available_tools": 38,
         "available_resources": 3,
         "available_prompts": 3
     }
