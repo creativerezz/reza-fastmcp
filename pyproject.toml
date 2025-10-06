@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dark-lavender-jellyfish"
+version = "0.1.0"
+description = "A FastMCP-based MCP server for text manipulation"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "fastmcp==2.11.3",
+]
+
+[project.scripts]
+dark-lavender-jellyfish = "server:main"
+
+[tool.setuptools]
+py-modules = ["server"]
